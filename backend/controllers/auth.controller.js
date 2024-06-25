@@ -17,8 +17,9 @@ export class AuthController{
             return res.status(400).json({error:"Username already exists !"});
          } 
          const hashPassword=await bcrypt.hash(password,10);
-         const boyProfilePic=`https://avatar/.iran.liara.run/public/boy?username=${userName}`;
-         const girlProfilePic=`https://avatar/.iran.liara.run/public/girl?username=${userName}`;
+         const boyProfilePic=`https://avatar.iran.liara.run/public/boy?username=${userName}`;
+         const girlProfilePic=`https://avatar.iran.liara.run/public/girl?username=${userName}`;
+         
          const newUser=await UserModel({
             fullName,userName,password:hashPassword,gender,
             profilePic:gender==="male"?boyProfilePic:girlProfilePic
@@ -49,20 +50,21 @@ export class AuthController{
          const {userName,password}=req.body;  
          console.log(req.body);
          const user=await UserModel.findOne({userName});
+         console.log(user);
          const isPasswordCorrect=bcrypt.compare(password,user?.password || "");
          if(!user || !isPasswordCorrect ){
             res.status(400).json({error:"Invalid Credentials !"});  
+         }else{
+   //generating token
+   generateTokenAndSetCookies(user._id,res);
+   return res.status(200).json({
+       _id:user._id,
+       fullName:user.fullName,
+       userName:user.userName,
+       profilePic:user.profilePic
+   });
          }
-             //generating token
-             generateTokenAndSetCookies(user._id,res);
-            return res.status(400).json({
-                _id:user._id,
-                fullName:user.fullName,
-                userName:user.userName,
-                profilePic:user.profilePic
-            });
-      
-        
+          
         } catch (error) {
             console.log(error);
             res.status(500).json({error:"Internal server error"});

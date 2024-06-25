@@ -1,5 +1,6 @@
 import ConversationModel from "../models/conversation.model.js";
 import MessageModel from "../models/message.model.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 
 
@@ -25,6 +26,12 @@ export class MessageController{
                conversation.messages.push(newMessage._id);
             }
             await Promise.all([conversation.save(),newMessage.save()]);
+            // Socket IO functionality
+            const receiverSocketId=getReceiverSocketId(receiverId);
+            if(receiverSocketId){
+                // io.to(socket_id),emit() is used to send events to specific clients
+                io.to(receiverSocketId).emit("newMessage",newMessage)
+            }
             res.status(201).json({newMessage});
         } catch (error) {
             console.log("error in sendMessage Controller ",error);
@@ -38,10 +45,14 @@ export class MessageController{
             const conversation=await ConversationModel.findOne({
                 participants:{$all:[senderId,receiverId]}
             }).populate("messages");
+            // console.log("conversations ",conversation);
             if(!conversation){
-                res.status(200).json([]);
+               return res.status(200).json([]);
             }
-                res.status(200).json(conversation.messages);
+            const messages = conversation.messages;
+
+		res.status(200).json(messages);
+           
             
         } catch (error) {
             console.log("error in getMessage Controller ",error);

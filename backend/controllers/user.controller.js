@@ -6,6 +6,7 @@ export class UserController{
         try {
             const loggedInuser=req.user._id;
             const filteredUsers=await UserModel.find({_id:{$ne:loggedInuser}}).select("-password");
+            // console.log(filteredUsers);
             res.status(200).json(filteredUsers);
         } catch (error) {
             console.log("error in getUserForSideBar Controller ",error);
