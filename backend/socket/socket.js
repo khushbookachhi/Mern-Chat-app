@@ -25,6 +25,7 @@ if(userId!="undefined") userSocketMap[userId]=socket.id;
 // io.emit() is used to send events to all connected clients
 io.emit("getOnlineUsers",Object.keys(userSocketMap));
 
+// socket.on() is used to emit the events . can be used in client and server side 
     socket.on("disconnect",()=>{
         console.log("user disconnected ",socket.id) 
         delete userSocketMap[userId]; 

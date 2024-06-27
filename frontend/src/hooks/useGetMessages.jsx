@@ -15,7 +15,7 @@ const getMessages=async()=>{
         if(data.error){
             throw new Error(data.error);
         }
-        console.log(data);
+        console.log("get messages are running ",data);
         setMessages(data);
     } catch (error) {
         toast.error(error.message);
